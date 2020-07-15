@@ -1,1 +1,1 @@
-# MyAdorablePuppy
+### Algorithm Study
