@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -62,6 +63,8 @@ int main()
 	}
 
 	cout << howmany << "\n";
+    
+    sort(area.begin(), area.end());
 	for (i = 0; i < area.size(); i++) {
 		cout << area[i] << " ";
 	}
