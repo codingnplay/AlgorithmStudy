@@ -10,6 +10,7 @@ list<pair<int, int>> BFSQueue;
 int startX, startY;
 int endX, endY;
 int ans = 0;
+int minANS = 1000000;
 
 void bfs() {
 	if (BFSQueue.empty()) return;
@@ -51,41 +52,17 @@ void bfs() {
 	bfs();
 }
 
-int main()
-{
-	string str;
-	int i, j;
-
-	cin >> M >> N;
-	for (i = 0; i < N; i++) {
-		cin >> str;
-		for (j = 0; j < M; j++) {
-			if (str[j] == 'C') {
-				board[i][j] = -2;
-				startX = i; startY = j;
-			}
-			else if (str[j] == '*') {
-				board[i][j] = -1;
-			}
-		}
-	}
-
-	BFSQueue.push_back(make_pair(startX, startY));
-	visited[startX][startY] = true;
-	board[startX][startY] = 0;
-	bfs();
-
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < M; j++) {
-			visited[i][j] = false;
-		}
-	}
+void check() {
 
 	int minX, minY, minV;
 	int predir = 0, dir;
+	ans = 0;
+
+	if (endX == startX && endY == startY) ans = 1;
+
 	while (endX != startX || endY != startY) {
 		minV = 100000;
-		if (endX > 0 && board[endX - 1][endY] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX-1][endY] + 1)) {
+		if (endX > 0 && board[endX - 1][endY] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX - 1][endY] + 1)) {
 			if (board[endX - 1][endY] < minV) {
 				minV = board[endX - 1][endY]; minX = endX - 1; minY = endY;
 				dir = 1;
@@ -148,7 +125,55 @@ int main()
 		endX = minX; endY = minY;
 	}
 
-	cout << ans - 1;
+	if (ans < minANS) minANS = ans;
+}
+
+int main()
+{
+	string str;
+	int i, j;
+
+	cin >> M >> N;
+	for (i = 0; i < N; i++) {
+		cin >> str;
+		for (j = 0; j < M; j++) {
+			if (str[j] == 'C') {
+				board[i][j] = -2;
+				startX = i; startY = j;
+			}
+			else if (str[j] == '*') {
+				board[i][j] = -1;
+			}
+		}
+	}
+
+	BFSQueue.push_back(make_pair(startX, startY));
+	visited[startX][startY] = true;
+	board[startX][startY] = 0;
+	bfs();
+
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < M; j++) {
+			visited[i][j] = false;
+		}
+	}
+
+	int orEndX = endX, orEndY = endY;
+	if (orEndX > 0 && board[orEndX - 1][orEndY] > 0) {
+		endX = orEndX - 1; endY = orEndY; check();
+	}
+	if (orEndY > 0 && board[orEndX][orEndY - 1] > 0) {
+		endX = orEndX; endY = orEndY - 1; check();
+	}
+	if (orEndX < N - 1 && board[orEndX + 1][orEndY] > 0) {
+		endX = orEndX + 1; endY = orEndY; check();
+	}
+	if (orEndY < M - 1 && board[orEndX][orEndY + 1] > 0) {
+		endX = orEndX; endY = orEndY + 1; check();
+	}
+	
+
+	cout << minANS - 1;
 
 	return 0;
 }
