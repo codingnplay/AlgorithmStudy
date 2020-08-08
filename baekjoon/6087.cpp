@@ -2,178 +2,147 @@
 #include <list>
 
 using namespace std;
-
 int N, M;
+string board[100];
+int D[100][100];
 bool visited[100][100];
-int board[100][100];
-list<pair<int, int>> BFSQueue;
 int startX, startY;
 int endX, endY;
-int ans = 0;
-int minANS = 1000000;
+list<pair<int, int>> bfsQueue;
+int ans = 999999;
+int predir = 0;
+
+void resetVisited(int n) {
+	int i, j;
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < M; j++) {
+			if (D[i][j] <= n) {
+				visited[i][j] = false;
+			}
+		}
+	}
+}
 
 void bfs() {
-	if (BFSQueue.empty()) return;
-	int x = BFSQueue.front().first;
-	int y = BFSQueue.front().second;
-	BFSQueue.pop_front();
 
-	if (board[x][y] == -2) {
-		endX = x;
-		endY = y;
-		board[x][y] = -1;
+	if (bfsQueue.empty()) return;
+	int x = bfsQueue.front().first;
+	int y = bfsQueue.front().second;
+	bfsQueue.pop_front();
+
+	if (D[x][y] != 1 && board[x][y] == 'C') {
+		endX = x; endY = y;
+		bfsQueue.clear();
 		return;
 	}
 
-	if (x > 0 && !visited[x - 1][y] && board[x - 1][y] != -1) {
-		BFSQueue.push_back(make_pair(x - 1, y));
+	if (x > 0 && !visited[x - 1][y] && board[x - 1][y] != '*') {
+		bfsQueue.push_back(make_pair(x - 1, y));
 		visited[x - 1][y] = true;
-		if (board[x - 1][y] != -2)
-		board[x - 1][y] = board[x][y] + 1;
+		D[x - 1][y] = D[x][y] + 1;
 	}
-	if (y > 0 && !visited[x][y - 1] && board[x][y - 1] != -1) {
-		BFSQueue.push_back(make_pair(x, y - 1));
+	if (y > 0 && !visited[x][y - 1] && board[x][y - 1] != '*') {
+		bfsQueue.push_back(make_pair(x, y - 1));
 		visited[x][y - 1] = true;
-		if (board[x][y - 1] != -2)
-		board[x][y - 1] = board[x][y] + 1;
+		D[x][y - 1] = D[x][y] + 1;
 	}
-	if (x < N - 1 && !visited[x + 1][y] && board[x + 1][y] != -1) {
-		BFSQueue.push_back(make_pair(x + 1, y));
-		if (board[x + 1][y] != -2)
+	if (x < N - 1 && !visited[x + 1][y] && board[x + 1][y] != '*') {
+		bfsQueue.push_back(make_pair(x + 1, y));
 		visited[x + 1][y] = true;
-		board[x + 1][y] = board[x][y] + 1;
+		D[x + 1][y] = D[x][y] + 1;
 	}
-	if (y < M - 1 && !visited[x][y + 1] && board[x][y + 1] != -1) {
-		BFSQueue.push_back(make_pair(x, y + 1));
+	if (y < M - 1 && !visited[x][y + 1] && board[x][y + 1] != '*') {
+		bfsQueue.push_back(make_pair(x, y + 1));
 		visited[x][y + 1] = true;
-		if (board[x][y + 1] != -2)
-		board[x][y + 1] = board[x][y] + 1;
+		D[x][y + 1] = D[x][y] + 1;
 	}
 	bfs();
 }
 
-void check() {
+int dfs(int x, int y) {
+	if (D[x][y] == 1) return 0;
 
-	int minX, minY, minV;
-	int predir = 0, dir;
-	ans = 0;
+	int res = 0;
+	int ans = 999999;
+	visited[x][y] = true;
+	int depth = D[x][y];
+	int tmpdir = predir;
 
-	if (endX == startX && endY == startY) ans = 1;
+	
 
-	while (endX != startX || endY != startY) {
-		minV = 100000;
-		if (endX > 0 && board[endX - 1][endY] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX - 1][endY] + 1)) {
-			if (board[endX - 1][endY] < minV) {
-				minV = board[endX - 1][endY]; minX = endX - 1; minY = endY;
-				dir = 1;
-			}
-		}
-		if (endY > 0 && board[endX][endY - 1] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX][endY - 1] + 1)) {
-			if (board[endX][endY - 1] < minV) {
-				minV = board[endX][endY - 1]; minX = endX; minY = endY - 1;
-				dir = 2;
-			}
-		}
-		if (endX < N - 1 && board[endX + 1][endY] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX + 1][endY] + 1)) {
-			if (board[endX + 1][endY] < minV) {
-				minV = board[endX + 1][endY]; minX = endX + 1; minY = endY;
-				dir = 3;
-			}
-		}
-		if (endY < M - 1 && board[endX][endY + 1] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX][endY + 1] + 1)) {
-			if (board[endX][endY + 1] < minV) {
-				minV = board[endX][endY + 1]; minX = endX; minY = endY + 1;
-				dir = 4;
-			}
-		}
-		if (predir == 1) {
-			if (endX > 0 && board[endX - 1][endY] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX - 1][endY] + 1)) {
-				if (board[endX - 1][endY] == minV) {
-					minV = board[endX - 1][endY]; minX = endX - 1; minY = endY;
-					dir = 1;
-				}
-			}
-		}
-		else if (predir == 2) {
-			if (endY > 0 && board[endX][endY - 1] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX][endY - 1] + 1)) {
-				if (board[endX][endY - 1] == minV) {
-					minV = board[endX][endY - 1]; minX = endX; minY = endY - 1;
-					dir = 2;
-				}
-			}
-		}
-		else if (predir == 3) {
-			if (endX < N - 1 && board[endX + 1][endY] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX + 1][endY] + 1)) {
-				if (board[endX + 1][endY] == minV) {
-					minV = board[endX + 1][endY]; minX = endX + 1; minY = endY;
-					dir = 3;
-				}
-			}
+	if (x > 0 && !visited[x - 1][y] && D[x - 1][y] == depth - 1) {
+		if (tmpdir != 1) {
+			res = 1;
 		}
 		else {
-			if (endY < M - 1 && board[endX][endY + 1] != -1 && (board[endX][endY] < 0 || board[endX][endY] == board[endX][endY + 1] + 1)) {
-				if (board[endX][endY + 1] == minV) {
-					minV = board[endX][endY + 1]; minX = endX; minY = endY + 1;
-					dir = 4;
-				}
-			}
+			res = 0;
 		}
-		if (predir != dir) {
-			ans++;
+		predir = 1;
+		res += dfs(x - 1, y);
+		if (ans > res)ans = res;
+		resetVisited(depth - 1);
+	}
+	if (y > 0 && !visited[x][y - 1] && D[x][y - 1] == depth - 1) {
+		if (tmpdir != 2) {
+			res = 1;
 		}
-		predir = dir;
-		endX = minX; endY = minY;
+		else {
+			res = 0;
+		}
+		predir = 2;
+		res += dfs(x, y - 1);
+		if (ans > res)ans = res;
+		resetVisited(depth - 1);
+	}
+	if (x < N - 1 && !visited[x + 1][y] && D[x + 1][y] == depth - 1) {
+		if (tmpdir != 3) {
+			res = 1;
+		}
+		else {
+			res = 0;
+		}
+		predir = 3;
+		res += dfs(x + 1, y);
+		if (ans > res)ans = res;
+		resetVisited(depth - 1);
+	}
+	if (y < M - 1 && !visited[x][y + 1] && D[x][y + 1] == depth - 1) {
+		if (tmpdir != 4) {
+			res = 1;
+		}
+		else {
+			res = 0;
+		}
+		predir = 4;
+		res += dfs(x, y + 1); 
+		if (ans > res)ans = res;
+		resetVisited(depth - 1);
 	}
 
-	if (ans < minANS) minANS = ans;
+	return ans;
 }
 
 int main()
 {
-	string str;
-	int i, j;
-
 	cin >> M >> N;
+	int i, j;
 	for (i = 0; i < N; i++) {
-		cin >> str;
+		cin >> board[i];
 		for (j = 0; j < M; j++) {
-			if (str[j] == 'C') {
-				board[i][j] = -2;
-				startX = i; startY = j;
-			}
-			else if (str[j] == '*') {
-				board[i][j] = -1;
+			if (board[i][j] == 'C') {
+				startX = i;
+				startY = j;
 			}
 		}
 	}
 
-	BFSQueue.push_back(make_pair(startX, startY));
+	D[startX][startY] = 1;
 	visited[startX][startY] = true;
-	board[startX][startY] = 0;
+	bfsQueue.push_back(make_pair(startX, startY));
 	bfs();
 
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < M; j++) {
-			visited[i][j] = false;
-		}
-	}
-
-	int orEndX = endX, orEndY = endY;
-	if (orEndX > 0 && board[orEndX - 1][orEndY] > 0) {
-		endX = orEndX - 1; endY = orEndY; check();
-	}
-	if (orEndY > 0 && board[orEndX][orEndY - 1] > 0) {
-		endX = orEndX; endY = orEndY - 1; check();
-	}
-	if (orEndX < N - 1 && board[orEndX + 1][orEndY] > 0) {
-		endX = orEndX + 1; endY = orEndY; check();
-	}
-	if (orEndY < M - 1 && board[orEndX][orEndY + 1] > 0) {
-		endX = orEndX; endY = orEndY + 1; check();
-	}
-	
-
-	cout << minANS - 1;
+	resetVisited(D[endX][endY]);
+	cout << dfs(endX, endY) - 1;
 
 	return 0;
 }
