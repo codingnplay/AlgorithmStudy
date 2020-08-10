@@ -23,7 +23,7 @@ void expand_water() {
 				if (j > 0 && board[i][j - 1] == '*') tmpboard[i][j] = '*';
 				if (i < R - 1 && board[i + 1][j] == '*')tmpboard[i][j] = '*';
 				if (j < C - 1 && board[i][j + 1] == '*')tmpboard[i][j] = '*';
-			}
+			} 
 		}
 	}
 
