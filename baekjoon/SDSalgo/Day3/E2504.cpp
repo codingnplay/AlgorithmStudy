@@ -3,8 +3,25 @@
 using namespace std;
 
 string str;
-vector<char> stack;
+vector<node> stack;
 int ans = 0;
+
+class node{
+    public:
+        bool isValue;
+        int value;
+        char c;
+    
+    node(int v){
+        isValue = true;
+        value = v;
+    }
+    
+    node(char par){
+        isValue = false;
+        c = par;
+    }
+};
 
 int main()
 {
