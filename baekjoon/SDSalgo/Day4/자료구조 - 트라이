@@ -1,0 +1,66 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class TrieNode{
+    public:
+    
+    TrieNode* next[26] = { NULL, };
+    bool isEnd;
+    bool isHit;
+    
+    bool hasChild(int n){
+        return next[n] != NULL;
+    }
+    
+    TrieNode* getChild(int n){
+        return next[n];
+    }
+};
+
+class Trie{
+  public:
+    TrieNode* root = new TrieNode();
+
+    void insert(string word){
+        TrieNode* current = root;
+        for(int i=0; i<word.length(); i++){
+            int index = word[i] - 'A';
+            if(current->hasChild(index) == false){
+                current->next[index] = new TrieNode();
+            }
+            current = current->getChild(index);
+        }
+        current->isEnd = true;
+    }
+    
+    bool checkWord(string word){
+        TrieNode* current = root;
+        for(int i=0; i<word.length(); i++){
+            int index = word[i] - 'A';
+            if(!current->hasChild(index)){
+                cout << "here";
+                return false;
+            }
+            current = current->getChild(index);
+        }
+        
+        if(current->isEnd){
+            current->isHit = true;
+            return true;
+        }
+        return false;
+    }
+};
+
+int main()
+{
+    TrieNode n;
+	Trie TrieTree;
+	TrieTree.insert("ABC");
+	cout << TrieTree.checkWord("ABC");
+	TrieTree.insert("AB");
+	cout << TrieTree.checkWord("AB");
+	cout << TrieTree.checkWord("A");
+	return 0;
+}
