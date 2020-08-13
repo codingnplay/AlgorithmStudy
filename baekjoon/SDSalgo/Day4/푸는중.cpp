@@ -78,7 +78,7 @@ void dfs(int b, int i, int j, int length, string str){
     int mx[] = {0,0,-1,1};
     int my[] = {-1,1,0,0};
     
-    if(TrieTree.checkWord(str + board[b][i][j])){
+    if(TrieTree.checkWord(str){
         foundCount++;
         if(maxScore < getSocre(length)) {
             maxScore = getSocre(length);
@@ -88,12 +88,18 @@ void dfs(int b, int i, int j, int length, string str){
         }
     }
     
+    if(length >= 8) return;
+    
+    for(int x=0; x<str.length(); x++){
+        
+    }
+    
     for(int x=0;i<4;i++){
         int tx = i+mx[x];
         int ty = j+my[x];
         
         if(tx>=0 && ty<=0 && tx<4 && ty<4 && !visited[b][tx][ty]){
-            dfs(b, tx, ty, )
+            dfs(b, tx, ty, length+1, str+board[b][tx][ty]);
         }
     }
     
