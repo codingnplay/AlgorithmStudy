@@ -1,75 +1,84 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+
 using namespace std;
 
 int N;
-int h[100000];
-int minH[400000];
+int h[100001];
+int seg[400004];
 
-void initMinH() {
-	int start = pow(2,(int)(ceil(log2(N))));
-	int i, now;
-	for (i = 0; i < start + N; i++) {
-		minH[i] = -1;
-	}
-	for (i = start; i < start + N; i++) {
-		now = i;
-		while (now > 0) {
-			if (minH[now] == -1 || h[minH[now]] > h[i-start]) {
-				minH[now] = i - start;
-			}
-			now = now / 2;
-		}
-	}
+void init() {
+    int start = pow(2, (int)ceil(log2(N))) - 1;
+
+    for (int i = 0; i <= 4*N; i++) {
+        seg[i] = -1;
+    }
+
+    for (int i = 1; i <= N; i++) {
+        int n = start + i;
+        while (n > 0) {
+            if (seg[n] == -1 || h[seg[n]] > h[i]) {
+                seg[n] = i;
+            }
+            n /= 2;
+        }
+    }
 }
 
-int getMinIndex(int node, int left, int right, int start, int end) {
-	if (left <= start && right >= end) {
-		return minH[node];
-	}
-	if (left > end || right < start || left > N) {
-		return -1;
-	}
-	int mid = (start + end) / 2;
-	int leftIndex = getMinIndex(2 * node, left, right, start, mid);
-	int rightIndex = getMinIndex(2 * node + 1, left, right, mid + 1, end);
-	if (leftIndex == -1) return rightIndex;
-	if (rightIndex == -1) return leftIndex;
-	if (h[leftIndex] < h[rightIndex]) return leftIndex;
-	return rightIndex;
+int minIndex(int node, int start, int end, int left, int right) {
+
+    if (start >= left && end <= right) {
+        return seg[node];
+    }
+    if (start > right || end < left) {
+        return -1;
+    }
+
+    int middle = (start + end) / 2;
+    int leftIndex = minIndex(2 * node, start, middle, left, right);
+    int rightIndex = minIndex(2 * node + 1, middle + 1, end, left, right);
+
+    if (leftIndex == -1) return rightIndex;
+    if (rightIndex == -1) return leftIndex;
+    if (h[leftIndex] < h[rightIndex]) return leftIndex;
+    return rightIndex;
 }
 
-long maxArea(int left, int right) {
-	if (left == right) return h[left];
-	int minIndex = getMinIndex(1, left + 1, right + 1, 1, pow(2, (int)(ceil(log2(N)))));
-	long area = h[minIndex] * (right - left + 1);
-	if (left <= minIndex - 1) {
-		area = max(area, maxArea(left, minIndex - 1));
-	}
-	if (minIndex + 1 <= right) {
-		area = max(area, maxArea(minIndex + 1, right));
-	}
-	return area;
+long long maxArea(int left, int right) {
+    if (left == right) return h[left];
+    int index = minIndex(1, 1, pow(2, (int)ceil(log2(N))), left, right);
+    long long area = (long long)h[index] * (right - left + 1);
+
+    if (index - 1 >= left) {
+        area = max(area, maxArea(left, index - 1));
+    }
+    if (index + 1 <= right) {
+        area = max(area, maxArea(index + 1, right));
+    }
+    return area;
 }
 
 int main()
 {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
 
-	int i;
+    int i;
 
-	while (1) {
-		cin >> N;
-		if (N == 0) break;
-		for (i = 0; i < N; i++) {
-			cin >> h[i];
-		}
+    while (1) {
+        cin >> N;
+        if (N == 0) break;
 
-		initMinH();
-		cout << maxArea(0, N - 1) << "\n";
-	}
+        for (i = 1; i <= N; i++) {
+            cin >> h[i];
+        }
 
-	return 0;
+        init();
+        cout << maxArea(1, N) << "\n";
+    }
+    
+    return 0;
 }
