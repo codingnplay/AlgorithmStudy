@@ -16,14 +16,13 @@ pair<int, int> find(pair<int, int> x) {
 
 void findParent(int a, int b, int c, int d) {
 	int j;
-	pair<int, int> p = { a,b };
+	pair<int, int> p = find({ a,b });
 	pair<int, int> t;
 	for (j = b; j <= d; j++) {
 		t = find(parent[a][j]);
 		parent[t.first][t.second] = p;
 		t = find(parent[c][j]);
 		parent[t.first][t.second] = p;
-		parent[a][j] = p; parent[c][j] = p;
 		drawn[a][j] = true; drawn[c][j] = true;
 	}
 	for (j = a + 1; j < c; j++) {
@@ -31,24 +30,12 @@ void findParent(int a, int b, int c, int d) {
 		parent[t.first][t.second] = p;
 		t = find(parent[j][d]);
 		parent[t.first][t.second] = p;
-		parent[j][b] = p; parent[j][d] = p;
 		drawn[j][b] = true; drawn[j][d] = true;
 	}
 }
 
 int tx[4] = { -1,1,0,0 };
 int ty[4] = { 0,0,-1,1 };
-
-void dfs(int x, int y) {
-	drawn[x][y] = false;
-	for (int i = 0; i < 4; i++) {
-		int dx = x + tx[i];
-		int dy = y + ty[i];
-		if (dx >= 0 && dy >= 0 && dx <= 1000 && dy <= 1000 && drawn[dx][dy] && find(parent[x][y]) == find(parent[dx][dy])) {
-			dfs(dx, dy);
-		}
-	}
-}
 
 int main()
 {
@@ -65,26 +52,10 @@ int main()
 		cin >> a >> b >> c >> d;
 		a += 500; b += 500; c += 500; d += 500;
 		findParent(a, b, c, d);
-		/*for (j = b; j <= d; j++) {
-			parent[a][j] = { a,b };
-			parent[c][j] = { a,b };
-			drawn[a][j] = true;
-			drawn[c][j] = true;
-		}
-		for (j = a; j <= c; j++) {
-			parent[j][b] = { a,b };
-			parent[j][d] = { a,b };
-			drawn[j][b] = true;
-			drawn[j][d] = true;
-		}*/
 	}
 
 	int ans = 0;
-	for (i = 0; i <= 1000; i++) {
-		for (j = 0; j <= 1000; j++) {
-			if (drawn[i][j]) cout << i-500 << " " << j-500 << " " <<parent[i][j].first-500 << " " << parent[i][j].second-500 << " \n";
-		}
-	}
+
 	for (i = 0; i <= 1000; i++) {
 		for (j = 0; j <= 1000; j++) {
 			if (drawn[i][j]) {
@@ -95,6 +66,7 @@ int main()
 				while (!bfsQueue.empty()) {
 					pair<int, int> f = bfsQueue.front();
 					bfsQueue.pop();
+					if (f.first == 500 && f.second == 500) ans--;
 
 					for (int k = 0; k < 4; k++) {
 						int dx = f.first + tx[k];
